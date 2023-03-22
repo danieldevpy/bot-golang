@@ -52,7 +52,7 @@ func GetAppSave(attribute string, db *gorm.DB, profile *models.Profile) string {
 	if err := db.Where("name = ? AND bot_id = ?", attribute, profile.BotID).First(&attributeSearch).Error; err != nil {
 		fmt.Println(err)
 	}
-	if err := db.Where("attribute.id = ? AND profile_id = ? AND bot_id = ? ", attributeSearch.ID, profile.ID, profile.BotID).First(&attributeSave).Error; err != nil {
+	if err := db.Where("attribute_id = ? AND profile_id = ? AND bot_id = ? ", attributeSearch.ID, profile.ID, profile.BotID).First(&attributeSave).Error; err != nil {
 		fmt.Println(err)
 	}
 	return attributeSave.Armz
