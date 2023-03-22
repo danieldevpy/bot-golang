@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"fmt"
+	"regexp"
+
 	"github.com/danieldevpy/bot-golang/app/models"
 	"gorm.io/gorm"
 )
@@ -41,4 +44,23 @@ func ExecuteApp(db *gorm.DB, profile *models.Profile, answer string) {
 		SaveAttribute(db, answer, profile)
 		profile.Question = profile.Question.OutPutQuestion
 	}
+}
+
+func GetAppSave(attribute string, db *gorm.DB, profile *models.Profile) string {
+	var attributeSearch *models.Attribute
+	var attributeSave *models.Save
+	if err := db.Where("name = ? AND bot_id = ?", attribute, profile.BotID).First(&attributeSearch).Error; err != nil {
+		fmt.Println(err)
+	}
+	if err := db.Where("attribute.id = ? AND profile_id = ? AND bot_id = ? ", attributeSearch.ID, profile.ID, profile.BotID).First(&attributeSave).Error; err != nil {
+		fmt.Println(err)
+	}
+	return attributeSave.Armz
+}
+
+func ReplaceMatches(str string, re *regexp.Regexp, replacer func(string, *gorm.DB, *models.Profile) string, db *gorm.DB, profile *models.Profile) string {
+	return re.ReplaceAllStringFunc(str, func(match string) string {
+		substr := re.FindStringSubmatch(match)[1]
+		return replacer(match[:1]+substr+match[len(match)-1:], db, profile)
+	})
 }

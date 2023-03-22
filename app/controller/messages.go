@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 
 	"github.com/danieldevpy/bot-golang/app/models"
@@ -33,6 +34,7 @@ func GetResponse(db *gorm.DB, botid int, number string, answer string) (*models.
 		}
 		parents := GetParents(db, profile.Question)
 		questions_answers = append(questions_answers, parents...)
+
 		lloop := 1
 		for loop := range questions_answers {
 			if questions_answers[loop].Index {
@@ -51,11 +53,16 @@ func GetResponse(db *gorm.DB, botid int, number string, answer string) (*models.
 		profile.Question = GetQuestionById(db, profile.Bot.MessageInicialID)
 	}
 
-	lrange := 1
+	var lrange = 1
 	object := ""
 	for loop := range questions_answers {
 		message := questions_answers[loop].Message
 		if message[:1] != "!" {
+			re := regexp.MustCompile(`\{([^}]+)\}`)
+			matches := re.FindAllStringSubmatch(questions_answers[loop].Message, -1)
+			if len(matches) > 0 {
+				message = ReplaceMatches(message, re, GetAppSave, db, profile)
+			}
 			if questions_answers[loop].Index {
 				object = fmt.Sprintf("%s*%d* - %s", object, lrange, message+"|")
 				lrange = lrange + 1
