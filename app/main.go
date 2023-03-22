@@ -52,9 +52,7 @@ func handleConnection(conn net.Conn) {
 			split := strings.Split(msg, "|")
 			profile, answer := controller.GetResponse(db, botid, split[0], split[1])
 			conn.Write([]byte("" + answer))
-			fmt.Println("fim")
-			fmt.Println(profile)
-			fmt.Println(profile.Question)
+			controller.SaveProfile(db, profile)
 		} else {
 			u64, err := strconv.ParseUint(msg, 10, 32)
 			if err != nil {

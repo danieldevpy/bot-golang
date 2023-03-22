@@ -21,3 +21,10 @@ func GetUser(db *gorm.DB, number string, botid int) *models.Profile {
 	db.Preload("Question").Preload("Bot").First(&profile)
 	return profile
 }
+
+func SaveProfile(db *gorm.DB, profile *models.Profile) {
+	if err := db.Save(profile).Error; err != nil {
+		fmt.Println("error save")
+		fmt.Println(err)
+	}
+}
